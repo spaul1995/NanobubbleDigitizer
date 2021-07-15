@@ -1,3 +1,31 @@
+% NanobubbleDigitizer data analysis package licence details:
+% 
+% Copyright Soumyadeep Paul (soumyadeep.paul@thml.t.u-tokyo.ac.jp)
+% 
+% This file is part of NanobubbleDigitizer data analysis package.
+% 
+% NanobubbleDigitizer is a MATLAB package designed to detect discrete 
+% bubble events from transient current traces. The bubble features
+% extracted from the current data using this code can be used to analyze
+% nanoscopic bubble dynamics confined within solid-state nanopores. This
+% package is released under the GNU GPL.
+% 
+% The copyright of arb is held by Soumyadeep Paul.
+% 
+% NanobubbleDigitizer is released under the GNU GPL.  NanobubbleDigitizer 
+% is free software: you can redistribute it and/or modify it under the 
+% terms of the GNU General Public License (version 3) as published 
+% by the Free Software Foundation.You should have received a copy of the 
+% GNU General Public Licence along with arb (see file licence.txt after 
+% unpacking).  If not, see <http://www.gnu.org/licences/>.
+% 
+% NanobubbleDigitizer is distributed in the hope that it will be useful, 
+% but WITHOUT ANY WARRANTY; without even the implied warranty of 
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General 
+% Public Licence for more details.
+% 
+% For full details of arb's licence see the licence file in the main 
+% directory.
 clear all
 Xk = zeros(1000000,10);
 X2k = zeros(1000000,10);
@@ -37,7 +65,7 @@ Iv = 1:length(Fv);                                  % Index Vector
 % figure(1)
 % plot(Fv, abs(FX(Iv))*2)
 % grid
-% title('Fourier Transform Of Original Signal ‘X’')
+% title('Fourier Transform Of Original Signal â€˜Xâ€™')
 % xlabel('Frequency (Hz)')
 % ylabel('Amplitude')
 FXdcoc2 = fft(X2-mean(X2))/L; 
@@ -49,7 +77,7 @@ FXdcoc = fft(X-mean(X))/L;                          % Fourier Transform (D-C Off
 % plot(Fv, abs(FXdcoc2(Iv))*2)
 % hold off
 % grid
-% title('Fourier Transform Of D-C Offset Corrected Signal ‘X’')
+% title('Fourier Transform Of D-C Offset Corrected Signal â€˜Xâ€™')
 % xlabel('Frequency (Hz)')
 % ylabel('Amplitude')
 % [FXn_max,Iv_max] = max(abs(FXdcoc(Iv))*2);          % Get Maximum Amplitude, & Frequency Index Vector
@@ -85,15 +113,15 @@ V1 = 6.2*((r1/(r1+rp))+(rp/(r1+rp))*exp(-(t)*1E-6*(rp+r1)/(rp*r1*cp)));
 % freqz(SOS, 4096, Fs);                               % Filter Bode Plot
 % title('Lowpass Filter Bode Plot')
 S = filtfilt(SOS,G,X);
-S2 = filtfilt(SOS,G,X2);                              % Filter ‘X’ To Recover ‘S’
+S2 = filtfilt(SOS,G,X2);                              % Filter â€˜Xâ€™ To Recover â€˜Sâ€™
 figure(4)
-%plot(t, X, 'LineWidth',0.5)                                          % Plot ‘X’
+%plot(t, X, 'LineWidth',0.5)                                          % Plot â€˜Xâ€™
 hold on
-plot(t, X, '-r', 'LineWidth',0.5)                   % Plot ‘S’
+plot(t, X, '-r', 'LineWidth',0.5)                   % Plot â€˜Sâ€™
 hold on
-plot(t, X2, '-g', 'LineWidth',0.5)                   % Plot ‘S’
+plot(t, X2, '-g', 'LineWidth',0.5)                   % Plot â€˜Sâ€™
 hold on
-plot(t, V1, '-b', 'LineWidth',0.5)                   % Plot ‘S’
+plot(t, V1, '-b', 'LineWidth',0.5)                   % Plot â€˜Sâ€™
 hold off
 ylim([-0.05 14])
 grid
