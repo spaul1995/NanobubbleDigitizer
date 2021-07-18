@@ -10,7 +10,7 @@
 % nanoscopic bubble dynamics confined within solid-state nanopores. This
 % package is released under the GNU GPL.
 % 
-% The copyright of arb is held by Soumyadeep Paul.
+% The copyright of NanobubbleDigitizer is held by Soumyadeep Paul.
 % 
 % NanobubbleDigitizer is released under the GNU GPL.  NanobubbleDigitizer 
 % is free software: you can redistribute it and/or modify it under the 
@@ -26,6 +26,7 @@
 % 
 % For full details of arb's licence see the licence file in the main 
 % directory.
+
 clear all
 Xk = zeros(1000000,10);
 X2k = zeros(1000000,10);
