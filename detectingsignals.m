@@ -27,30 +27,25 @@
 % For full details of arb's licence see the licence file in the main 
 % directory.
 
-
 clear all;
 clc;
-counterpulse = 17;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section: 0   Control parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+counterpulse = 1;
 filename = sprintf('M%i.csv',fix(counterpulse));
 start = 0;
 %ending = 137600;
-ending = 244250;
+ending = 246250;
 %ending = 621150;
-X1 = csvread(filename,start,0,[start,0,ending,2]);
+X1 = csvread(filename,start,0,[start,0,ending,3]);
 
-global V;
-global pr;
-global alpha_sigma;
-V = 10;
-alpha_sigma = 2.52;
-global room_temperature;
-room_temperature = 300.15;
-pr = 500;
-%control parameters
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 startpt = 200*(counterpulse-1);
 endptt = 100+200*(counterpulse-1);
+T1 = 0.0004;
+RawSignal = X1(:,2);
+LowFilteredSignal = X1(:,3);
+t = X1(:,1);
 
 base1 = 150;
 base2 = 350;
@@ -59,126 +54,42 @@ base12 = 200;
 base15 = 250;
 base18 = 300;
 
-recede_fac_ini = 0.03;
-order = 5;
-
-averagingfac=20/1250;
-
-
-
-nucpoint_averaging_width = 28;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% T = 0.0008*factor;
-T1 = 0.0004;
-RawSignal = X1(:,2);
-LowFilteredSignal = X1(:,3);
-% RawSignal1 = K_1;
-% L = size(RawSignal);
-% L1 = size(RawSignal1);
-t = X1(:,1);
-% t1 = (0:L1-1)*T1;
-StartCoeff = 2;
-EndCoeff = 0;
-FilterCoeff = 0.999;
-% cutCurrent = 120;
 K = 10e5;
 s1 = 950;
 s2 = s1-450;
 cutCurrentd = @(t) s1-base1-s2*(1-exp(-K*1e-6*(t-startpt)));
-
 cutCurrent12 = @(t) s1-base12-s2*(1-exp(-K*1e-6*(t-startpt)));
 cutCurrent15 = @(t) s1-base15-s2*(1-exp(-K*1e-6*(t-startpt)));
 cutCurrent18 = @(t) s1-base18-s2*(1-exp(-K*1e-6*(t-startpt)));
-
 cutCurrentr = @(t) s1-base2-s2*(1-exp(-K*1e-6*(t-startpt)));
-% figure
-% fplot(cutCurrentd)
-% xlim([3 50])
+
+
 sigma = 5;
+recede_fac_ini = 0.01;
+order = 3;
+averagingfac=20/1250;
+nucpoint_averaging_width = 28;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-% endpt = startpt+5;
-% startindex = 1;
-% endindex = length(t(t<endpt));
-% meanAvg = mean(RawSignal(startindex:endindex));
-% sigma = 5;
-% Icut = RawSignal-cutCurrent;
-% AbsIcut = abs(Icut);
-% AbsIcut(AbsIcut>sigma) = cutCurrent;
-% [pks,locs] = findpeaks(-AbsIcut);
-% 
-% 
-% 
-% bubble_number = 1;
-% % saveindex1 = zeros(length(locs),1);
-% % for i = 1:length(RawSignal)
-% %     if RawSignal(i)<100+sigma && RawSignal(i)>100-sigma
-% %         saveindex1(bubble_number) = i;
-% %         bubble_number=bubble_number+1;
-% %     end
-% % end
-% Cutpt1 = zeros(floor(length(locs)/2),1);
-% Cutpt2 = zeros(floor(length(locs)/2),1);
-% count = 1;
-% switch1=1;
-% marker = 0;
-% 
-% 
-% for i = 1:length(RawSignal)
-%     if (RawSignal(i)>cutCurrent+sigma)
-%         marker = 0;
-%     end
-% if (RawSignal(i)<cutCurrent+sigma) && marker ==0
-%     if ismember(i,locs)
-%         if switch1==1
-%         Cutpt1(bubble_number) = i;
-%         switch1 = 2;
-%         end
-%     end
-%     
-% if switch1==2
-%     bubble_number = bubble_number+1;
-%     switch1 = 1;
-%     marker = 1;
-% end
-% end
-% end
-% 
-% Cutpt1(Cutpt1==0)=[];
-% 
-% 
-% switch1=1;
-% marker = 0;
-% locs1 = setdiff(locs,Cutpt1);
-% 
-% for i =1:length(Cutpt1)-1
-%     Cutpt2(i) = locs(length(locs(locs<Cutpt1(i+1))));
-% end
-% Cutpt2(i+1) = locs(length(locs));
-% Cutpt2(Cutpt2==0)=[];
-
-
-
+% Section: 1   Start of Cut point estimation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Cutpt1 = zeros(1000,1);
-
 Cutpt12 = zeros(1000,1);
 Cutpt15 = zeros(1000,1);
 Cutpt18 = zeros(1000,1);
-
 Cutpt2dash = zeros(1000,1);
+
 counter1 = 1;
 counter12 = 1;
 counter15 = 1;
 counter18 = 1;
 counter2 = 1;
 i = 1;
-spacer = 20;
+spacer = 10;
 switch1 = 0;
 while i < length(RawSignal)
    if (RawSignal(i)<cutCurrentd(t(i))+sigma/2) && (RawSignal(i)>cutCurrentd(t(i))-sigma/2) && sign(RawSignal(i+200)-RawSignal(i)) < 0 && sign(RawSignal(i+50)-RawSignal(i)) < 0 && switch1 == 0
@@ -215,18 +126,18 @@ while i < length(RawSignal)
        switch18 = 0;
    end
    if (RawSignal(i)<cutCurrent18(t(i))+sigma/2) && (RawSignal(i)>cutCurrent18(t(i))-sigma/2) && sign(RawSignal(i+spacer)-RawSignal(i)) > 0 && switch18 == 0
-   Cutpt18(counter1) = i;
-   counter18 = counter18+1;
-   i = i+spacer;
-   switch2 = 0;
-   switch1 = 0;
-   switch12 = 0;
-   switch15 = 0;
-   switch18 = 1;
+       Cutpt18(counter1) = i;
+       counter18 = counter18+1;
+       i = i+spacer;
+       switch2 = 0;
+       switch1 = 0;
+       switch12 = 0;
+       switch15 = 0;
+       switch18 = 1;
    end
    
    
-  if (RawSignal(i)<cutCurrentr(t(i))+sigma/2) && (RawSignal(i)>cutCurrentr(t(i))-sigma/2) && sign(RawSignal(i+1)-RawSignal(i)) > 0 && switch2 == 0
+  if (RawSignal(i)<cutCurrentr(t(i))+sigma/2) && (RawSignal(i)>cutCurrentr(t(i))-sigma/2) && sign(RawSignal(i+spacer)-RawSignal(i)) > 0 && switch2 == 0
        Cutpt2dash(counter2) = i;
        counter2 = counter2+1;
        i = i+spacer;
@@ -246,16 +157,16 @@ Cutpt12(Cutpt12==0)=[];
 Cutpt15(Cutpt15==0)=[];
 Cutpt18(Cutpt18==0)=[];
 
-len_1 = sprintf('lenght of Cutpt1 = %i',fix(length(Cutpt1)));
-len_12 = sprintf('lenght of Cutpt12 = %i',fix(length(Cutpt12)));
-len_15 = sprintf('lenght of Cutpt15 = %i',fix(length(Cutpt15)));
-len_18 = sprintf('lenght of Cutpt18 = %i',fix(length(Cutpt18)));
-len_2 = sprintf('lenght of Cutpt2dash = %i',fix(length(Cutpt2dash)));
-display(len_1)
-display(len_12)
-display(len_15)
-display(len_18)
-display(len_2)
+% len_1 = sprintf('lenght of Cutpt1 = %i',fix(length(Cutpt1)));
+% len_12 = sprintf('lenght of Cutpt12 = %i',fix(length(Cutpt12)));
+% len_15 = sprintf('lenght of Cutpt15 = %i',fix(length(Cutpt15)));
+% len_18 = sprintf('lenght of Cutpt18 = %i',fix(length(Cutpt18)));
+% len_2 = sprintf('lenght of Cutpt2dash = %i',fix(length(Cutpt2dash)));
+% display(len_1)
+% display(len_12)
+% display(len_15)
+% display(len_18)
+% display(len_2)
 
 
 if length(Cutpt2dash) > length(Cutpt1)
@@ -292,7 +203,15 @@ xlim([startpt endptt])
 ylim([0 1000])
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%End of Cut point estimation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section: 2   Choosing the effective 2nd Cut point from Cutpt12, Cutpt15, Cutpt18 and
+%Cuttpt2dash
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 lengthfit = zeros(length(Cutpt1),1)+70;
 Cutpt2dashdash = zeros(length(Cutpt1),1);
@@ -358,7 +277,16 @@ end
 
 Cutpt2dash = Cutpt2dashdash;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Finished choosing the effective 2nd Cut point from Cutpt12, Cutpt15, Cutpt18 and
+%Cuttpt2dash
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section: 3   Receeding the chosen effective 2nd Cut point towards the collapse point
+%for better estimation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 Cutpt2 = zeros(length(Cutpt2dash),1);
@@ -372,8 +300,13 @@ for i=1:length(Cutpt2dash)
     Cutpt2(i) = floor((1-recede_fac)*Cutpt1(i)+recede_fac*Cutpt2dash(i));
 end
 
-% 
-% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Finished receeding. Cutpt1 and Cutpt2 are now the two effecting cut
+%points: One near the nucleation point and the other near the collapse
+%point
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 figure
 hold on
 plot(t,RawSignal)
@@ -384,20 +317,18 @@ fplot(cutCurrentr,'-g')
 hold on
 plot(t(Cutpt1),RawSignal(Cutpt1),'*r')
 hold on
-plot(t(Cutpt2),RawSignal(Cutpt2),'*g')
+plot(t(Cutpt2),RawSignal(Cutpt2),'*k')
+hold on
+plot(t(Cutpt2),RawSignal(Cutpt2dash),'*g')
 hold off
 xlim([startpt endptt])
 ylim([0 1000])
+legend('Current','cutCurrentd','cutCurrentr','Cuptpt1','Cutpt2dash','Cutpt2', 'FontSize', 18)
+ax = gca;
+ax.FontSize = 18;
+xlabel ('Time (\mus)', 'FontSize', 18)
+ylabel ('Current (\muA)', 'FontSize', 18)
 
-curvept1 = zeros(length(Cutpt1),1);
-curvept2 = zeros(length(Cutpt2),1);
-
-curvept1(1) = Cutpt1(1)-500;
-for i = 1:length(Cutpt1)
-
-    curvept2(i) = Cutpt1(i);
-    curvept1(i+1) = Cutpt2(i);
-end
 
 %%%cutting points%%%%%
 
@@ -412,11 +343,24 @@ end
 % hold off
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section: 4   Start calculating the dip point from Cutpt1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+curvept1 = zeros(length(Cutpt1),1);
+curvept2 = zeros(length(Cutpt2),1);
+
+curvept1(1) = Cutpt1(1)-500;
+for i = 1:length(Cutpt1)
+
+    curvept2(i) = Cutpt1(i);
+    curvept1(i+1) = Cutpt2(i);
+end
 dippt = zeros(length(curvept1)-1,1);
 locationdippt = zeros(length(curvept1)-1,1);
 
 % tolerance = 0.1;
-factor = 0.01;
+factor = 0.005;
 
 for i=1:length(curvept1)-1
 % for i=1:1
@@ -447,32 +391,12 @@ for i=1:length(curvept1)-1
             j = j-1;
         end
 
-        
-        
-
-
-        
-%         error = abs(ptsonf2-ptssaveRS);
-%         
-%         diagonaldist = sqrt(power(ptssavet,2)+power(ptsonf2,2));
-%         [M1,I1] = max(diagonaldist);
-%         dippt(i) = ptssavet(I1);
-        
-        
-%         [d1,d2] = differentiate(f2,ptssavet);
-%         [pks1,locs1] = findpeaks(-abs(d1));
-%         dippt(i) = ptssavet(locs1(end));
-
-%     else
-%         [M,I] = max(RawSignal(curvept1(i):curvept2(i)));
-%         dippt(i) = ptssavet(I);
-%     end
-        
+           
         arr = find(t==dippt(i));
         locationdippt(i) = min(arr);
         
         
-        if i<4 && i>2
+        if i<6 && i>2
         figure
         hold on
         plot(t,RawSignal)
@@ -488,7 +412,7 @@ for i=1:length(curvept1)-1
         hold on
         plot(t(Cutpt2),RawSignal(Cutpt2),'*g')
         hold off
-        ylim([50 250])
+        ylim([50 600])
         xlim([t(Cutpt2(i-1)) t(Cutpt1(i+1))])
         ylabel('Current (\muA)')
         xlabel('Time (\mus)')
@@ -498,10 +422,35 @@ end
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%End of calculating the dip point from Cutpt1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% f1=figure
+% % hold on
+% % plot(t,RawSignal)
+% % hold on
+% [dippt_new,RS_loc_new]=dragpoints(t,RawSignal,dippt,RawSignal(locationdippt),min(t)-10,max(t)+10,min(RawSignal)-100,max(RawSignal)+300);
+% % xlim([10 300])
+% % hold off
+% 
+% % k = f1; %Some Figure
+% %  while size(findobj(k))>0
+% %     display('me'); %some action
+% %     pause %some input
+% %  end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section: 5   Start calculating the rise point from Cutpt2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 risept = zeros(length(curvept1)-1,1);
 locationrisept = zeros(length(curvept1)-1,1);
@@ -511,19 +460,7 @@ factor1 = 0.001;
 for i=1:length(curvept1)-1
         ptssavet = t(curvept2(i):curvept1(i+1));
         ptssaveRS = RawSignal(curvept2(i):curvept1(i+1));
-%         [posloc_min_val,posloc_min_index] = findpeaks(-ptssaveRS);
-%         posloc_min = ptssavet(posloc_min_index);
-% %         lengthfit1 = 0.7*(length(ptssavet)-posloc_min_index(end));
-%         
-%         laplacian = abs(gradient(gradient(ptssaveRS)));
-%         [posloc_min_val1,posloc_min_index1] = findpeaks(-laplacian);
-%         if isempty(posloc_min_val1) == 1
-%            lengthfit1 = 0.7*(length(ptssavet)-posloc_min_index(end)) ;
-%         else
-%           posloc_min1 = ptssavet(posloc_min_index1);
-%         lengthfit1 = (length(ptssavet)-max(posloc_min_index1(end), posloc_min_index(end)));  
-%         end
-        
+
         lengthfit1 = averagingfac*length(ptssavet);
         c = polyfit(ptssavet(length(ptssavet)-lengthfit1:length(ptssavet)),ptssaveRS(length(ptssavet)-lengthfit1:length(ptssavet)),1);
         
@@ -544,33 +481,7 @@ for i=1:length(curvept1)-1
             j = j-1;
         end
 
-        
-%         
-%         figure
-%         hold on
-%         plot(ptssavet,ptssaveRS)
-%         hold on
-%         plot(posloc_min, -posloc_min_val,'*g')
-%         hold off
-
-        
-%         if i<3
-%         figure
-%         hold on
-%         plot(ptssavet,ptssaveRS)
-%         hold on
-%         plot(ptssavet,c(1)*ptssavet+c(2))
-%         hold on
-%         plot(ptssavet(length(ptssavet)),ptssaveRS(length(ptssavet)),'*g')
-%         hold on
-%         plot(ptssavet(j+1),ptssaveRS(j+1),'*b')
-%         hold off
-%         ylim([0 200])
-%         xlim([startpt endptt])
-%         ylabel('Current (\muA)')
-%         xlabel('Time (\mus)')
-%         end
-
+    
         arr = find(t==risept(i));
         locationrisept(i) = min(arr);
         if i<4 && i>2
@@ -596,6 +507,11 @@ for i=1:length(curvept1)-1
         title('Rise point for 3rd bubble')
         end
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%End of calculating the rise point from Cutpt2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 bubble_nos = length(curvept1)-1;
@@ -648,18 +564,6 @@ plot(t,RawSignal)
 hold on
 plot(dippt,RawSignal(locationdippt),'*r')
 hold on
-% for i =1:length(dippt)
-% plot(dippt(i),RawSignal(locationdippt(i)),'*r')
-% % txt = sprintf('Nuc @ %.2f \mus \rightarrow', dippt(i));
-% % text(dippt(i),RawSignal(locationdippt(i)),txt,'HorizontalAlignment','right')
-% end
-% hold on
-% for i =1:length(risept)
-% plot(risept(i),RawSignal(locationrisept(i)),'*g')
-% % txt = sprintf('Col @ %.2f \mus \rightarrow', risept(i));
-% % text(risept(i),RawSignal(locationrisept(i)),txt,'HorizontalAlignment','right')
-% end
-hold on
 plot(risept,RawSignal(locationrisept),'*g')
 hold on
 xlabel ('Time (\mus)')
@@ -682,18 +586,6 @@ plot(t(locationdipptstart),LowFilteredSignal(locationdipptstart),'xr')
 hold on
 plot(t(locationdipptend),LowFilteredSignal(locationdipptend),'xr')
 hold on
-% for i =1:length(dippt)
-% plot(dippt(i),RawSignal(locationdippt(i)),'*r')
-% % txt = sprintf('Nuc @ %.2f \mus \rightarrow', dippt(i));
-% % text(dippt(i),RawSignal(locationdippt(i)),txt,'HorizontalAlignment','right')
-% end
-% hold on
-% for i =1:length(risept)
-% plot(risept(i),RawSignal(locationrisept(i)),'*g')
-% % txt = sprintf('Col @ %.2f \mus \rightarrow', risept(i));
-% % text(risept(i),RawSignal(locationrisept(i)),txt,'HorizontalAlignment','right')
-% end
-hold on
 plot(risept,LowFilteredSignal(locationrisept),'*g')
 hold on
 xlabel ('Time (\mus)')
@@ -704,225 +596,12 @@ hold off
 
 
 
-% figure
-% hold on
-% plot(t,RawSignal)
-% hold on
-% plot(dippt,RawSignal(locationdippt),'*r')
-% % for i =1:length(dippt)
-% % plot(dippt(i),RawSignal(locationdippt(i)),'*r')
-% % % txt = sprintf('Nuc @ %.2f \mus \rightarrow', dippt(i));
-% % % text(dippt(i),RawSignal(locationdippt(i)),txt,'HorizontalAlignment','right')
-% % end
-% % hold on
-% % for i =1:length(risept)
-% % plot(risept(i),RawSignal(locationrisept(i)),'*g')
-% % % txt = sprintf('Col @ %.2f \mus \rightarrow', risept(i));
-% % % text(risept(i),RawSignal(locationrisept(i)),txt,'HorizontalAlignment','right')
-% % end
-% hold on
-% plot(risept,RawSignal(locationrisept),'*g')
-% hold on
-% waiting_time = zeros(length(curvept1)-1,1);
-% blockage_duration = zeros(length(curvept1)-1,1);
-% segment_nos = 10;
-% current_rise = zeros(length(curvept1)-1,segment_nos);
-% dipCurrent = zeros(length(curvept1)-1,1);
-% riseCurrent = zeros(length(curvept1)-1,1);
-% for i=1:length(curvept1)-1
-%     if i == 1
-%         waiting_time(i) = dippt(i)-startpt;
-%         dipCurrent(i) = RawSignal(locationdippt(i));
-%         riseCurrent(i) = RawSignal(locationrisept(i));
-%         X = RawSignal(1:locationdippt(i));
-%         TT = t(1:locationdippt(i));
-%         r = diff(fix(linspace(0, length(TT), segment_nos+1)));
-%         display(length(TT))
-%         current_subarray = mat2cell(X, r, 1);
-%         time_subarray = mat2cell(TT, r, 1);
-%         for j=1:segment_nos
-%             p = polyfit(time_subarray{j,1},current_subarray{j,1},1);
-%             f1 = polyval(p,time_subarray{j,1});
-%             plot(time_subarray{j,1}(1),f1(1),'o')
-%             hold on
-%             plot(time_subarray{j,1}(end),f1(end),'o')
-%             hold on
-%             plot(time_subarray{j,1},f1,'r--')
-%             hold on
-%             current_rise(i,j) = p(1);
-%         end
-%        
-%     else
-%         waiting_time(i) = dippt(i)-risept(i-1);
-%         dipCurrent(i) = RawSignal(locationdippt(i));
-%         riseCurrent(i) = RawSignal(locationrisept(i));
-%         X = RawSignal(locationrisept(i-1):locationdippt(i));
-%         TT = t(locationrisept(i-1):locationdippt(i));
-%         r = diff(fix(linspace(0, length(TT), segment_nos+1)));
-%         display(length(TT))
-%         current_subarray = mat2cell(X, r, 1);
-%         time_subarray = mat2cell(TT, r, 1);
-%         for j=1:segment_nos
-%             p = polyfit(time_subarray{j,1},current_subarray{j,1},1);
-%             f1 = polyval(p,time_subarray{j,1});
-%             plot(time_subarray{j,1}(1),f1(1),'o')
-%             hold on
-%             plot(time_subarray{j,1}(end),f1(end),'o')
-%             hold on
-%             plot(time_subarray{j,1},f1,'r--')
-%             hold on
-%             current_rise(i,j) = p(1);
-%         end
-%     end
-%     blockage_duration(i) = risept(i)-dippt(i);
-% end
-% 
-% 
-% 
-% xlabel ('Time (\mus)')
-% ylabel ('Current (\muA)')
-% legend('Current','Nucleation point','Bubble collapse point')
-% % xlim([10 300])
-% hold off
-% 
-% 
-% 
-% 
-% 
-% figure
-% hold on
-% plot(t,RawSignal)
-% hold on
-% plot(dippt,RawSignal(locationdippt),'*r')
-% % for i =1:length(dippt)
-% % plot(dippt(i),RawSignal(locationdippt(i)),'*r')
-% % % txt = sprintf('Nuc @ %.2f \mus \rightarrow', dippt(i));
-% % % text(dippt(i),RawSignal(locationdippt(i)),txt,'HorizontalAlignment','right')
-% % end
-% % hold on
-% % for i =1:length(risept)
-% % plot(risept(i),RawSignal(locationrisept(i)),'*g')
-% % % txt = sprintf('Col @ %.2f \mus \rightarrow', risept(i));
-% % % text(risept(i),RawSignal(locationrisept(i)),txt,'HorizontalAlignment','right')
-% % end
-% hold on
-% plot(risept,RawSignal(locationrisept),'*g')
-% hold on
-% 
-% 
-% 
-% segment_nos = 15;
-% current_rise2 = zeros(length(curvept1)-1,segment_nos);
-% for i=1:length(curvept1)-1
-%     if i == 1
-%         TT = t(1:locationdippt(i));
-%         r = diff(fix(linspace(0, length(TT), segment_nos+1)));
-%         r = cumsum(r);
-%         r2 = [1,r];
-%         X = zeros(length(r)+1,1);
-%         TT = zeros(length(r)+1,1);
-%         for k=1:length(r2)
-%             X(k) = RawSignal(r2(k));
-%             TT(k) = t(r2(k));
-%         end
-%         for j=1:segment_nos
-%             plot(TT(j),X(j),'o')
-%             hold on
-%             plot(linspace(TT(j),TT(j+1)),linspace(X(j),X(j+1)),'r--')
-%             hold on
-%             current_rise2(i,j) = (X(j+1)-X(j))/(TT(j+1)-TT(j));
-%         end
-%        plot(TT(j+1),X(j+1),'o')
-%     else
-%         TT = t(locationrisept(i-1):locationdippt(i));
-%         r = diff(fix(linspace(0, length(TT), segment_nos+1)));
-%         r = locationrisept(i-1)+cumsum(r);
-%         r2 = [locationrisept(i-1),r];
-%         X = zeros(length(r)+1,1);
-%         TT = zeros(length(r)+1,1);
-%         for k=1:length(r2)
-%             X(k) = RawSignal(r2(k));
-%             TT(k) = t(r2(k));
-%         end
-%         for j=1:segment_nos
-%             plot(TT(j),X(j),'o')
-%             hold on
-%             plot(linspace(TT(j),TT(j+1)),linspace(X(j),X(j+1)),'r--')
-%             hold on
-%             current_rise2(i,j) = (X(j+1)-X(j))/(TT(j+1)-TT(j));
-%         end
-%         plot(TT(j+1),X(j+1),'o')
-%     end
-% end
-% 
-% 
-% 
-% xlabel ('Time (\mus)')
-% ylabel ('Current (\muA)')
-% legend('Current','Nucleation point','Bubble collapse point')
-% % xlim([10 300])
-% hold off
-
-
 
 figure
 histogram(blockage_duration(1:end), 40)
 xlabel ('Blockage duration (\mus)')
 ylabel ('Bubble number')
 hold off
-% 
-% figure
-% histogram(waiting_time(2:end), 10)
-% xlabel ('Waiting time (\mus)')
-% ylabel ('Bubble number')
-% hold off
-% 
-% figure
-% hold on
-% yyaxis left
-% plot(waiting_time(2:end),'--*r')
-% ylabel('Waiting time (\mus)')
-% hold on
-% yyaxis right
-% plot(blockage_duration(2:end),'--*g')
-% ylabel('Blockage duration (\mus)')
-% xlabel('Bubble number')
-% legend('Waiting time','Blockage duration')
-% hold off
-% 
-% figure
-% bar(1000*blockage_duration,'facecolor','r')
-% ylabel('Blockage duration (ns)')
-% xlabel('Bubble number')
-% 
-% figure
-% bar(waiting_time(1:end),'facecolor','r')
-% ylabel('Waiting time (\mus)')
-% xlabel('Bubble number')
-% ylim([0 10])
 
 interestpts = vertcat(dippt,risept);
 interestpts = sort(interestpts);
-% tic
-% transientJH_wall;
-% toc
-
-% 
-% figure
-% hold on
-% yyaxis left
-% plot(ptssavet,ptssaveRS)
-% hold on
-% yyaxis left
-% plot(f2,ptssavet,ptssaveRS)
-% hold on
-% yyaxis right
-% plot(ptssavet,d1)
-% hold on
-% yyaxis right
-% plot(ptssavet(locs1(end)),d1(locs1(end)),'*g')
-% hold off
-
-
-
-
