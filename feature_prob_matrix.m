@@ -1,6 +1,6 @@
 % NanobubbleDigitizer data analysis package licence details:
 % 
-% Copyright Soumyadeep Paul (soumyadeep.paul@thml.t.u-tokyo.ac.jp)
+% Copyright 2009-2014 Soumyadeep Paul (soumyadeep.paul@thml.t.u-tokyo.ac.jp)
 % 
 % This file is part of NanobubbleDigitizer data analysis package.
 % 
@@ -10,7 +10,7 @@
 % nanoscopic bubble dynamics confined within solid-state nanopores. This
 % package is released under the GNU GPL.
 % 
-% The copyright of arb is held by Soumyadeep Paul.
+% The copyright of NanobubbleDigitizer is held by Soumyadeep Paul.
 % 
 % NanobubbleDigitizer is released under the GNU GPL.  NanobubbleDigitizer 
 % is free software: you can redistribute it and/or modify it under the 
