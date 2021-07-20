@@ -1,6 +1,6 @@
 {
-  "name": "PyNano",
-  "Version": "2.9",
+  "name": "NanobubbleDigitizer",
+  "Version": "1.0",
   "requires": true,
   "Feature": "Add the Mosaic adept2state method, Update the Install Docs."
 }
