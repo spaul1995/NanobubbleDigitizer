@@ -17,4 +17,11 @@ Fig.1 (a) Current time trace of nanopore bubble blockage. By running the algorit
 detectingsignals.m is the primary code for bubble signal detection. A csv file containing time series data for current is the only input file needed to run this code.
 
 **1**:
+
+## References
+
+**1**: Paul, S., Hsu, W.L., Magnini, M., Mason, L.R., Ho, Y.L., Matar, O.K. and Daiguji, H., 2020. Single-bubble dynamics in nanopores: Transition between homogeneous and heterogeneous nucleation. Physical Review Research, 2(4), p.043400.
+
+**2**: Paul, S., Hsu, W.L., Magnini, M., Mason, L.R., Ito, Y., Ho, Y.L., Matar, O.K. and Daiguji, H., 2021. Analysis and control of vapor bubble growth inside solid-state nanopores. Journal of Thermal Science and Technology, 16(1), pp.JTST0007-JTST0007.
+
 ## Website Under Construction
