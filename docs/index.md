@@ -1,7 +1,6 @@
 # NanobubbleDigitizer
 
-NanobubbleDigitizer is a MATLAB based nanopore data analysis interface, which can be used to analysis the current-time data of bubble generation in solid-state nanopore.	
-
+NanobubbleDigitizer is a MATLAB based nanopore data analysis interface, which can be used to analysis the current-time data of bubble generation in solid-state nanopore.	NanobubbleDigitizer is open-source software that will soon be released under the GNU General Public Licence (GPL). This software is created by Soumyadeep Paul (soumyadeep.paul@thml.t.u-tokyo.ac.jp).
 
 ## Installation 
 
