@@ -24,7 +24,7 @@
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General 
 % Public Licence for more details.
 % 
-% For full details of arb's licence see the licence file in the main 
+% For full details of NanobubbleDigitizer's licence see the licence file in the main 
 % directory.
 
 %transition probability matrix
