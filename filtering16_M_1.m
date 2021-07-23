@@ -1,6 +1,6 @@
 % NanobubbleDigitizer data analysis package licence details:
 % 
-% Copyright Soumyadeep Paul (soumyadeep.paul@thml.t.u-tokyo.ac.jp)
+% Copyright 2009-2014 Soumyadeep Paul (soumyadeep.paul@thml.t.u-tokyo.ac.jp)
 % 
 % This file is part of NanobubbleDigitizer data analysis package.
 % 
@@ -24,7 +24,7 @@
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General 
 % Public Licence for more details.
 % 
-% For full details of arb's licence see the licence file in the main 
+% For full details of NanobubbleDigitizer's licence see the licence file in the main 
 % directory.
 
 clear all
