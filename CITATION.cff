@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 authors:
-- family-names: "PAUL"
-  given-names: "SOUMYADEEP"
+- family-names: "Paul"
+  given-names: "Soumyadeep"
   orcid: "https://orcid.org/0000-0002-4808-662X"
 title: "NanobubbleDigitizer"
 version: 1.0.0
